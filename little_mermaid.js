@@ -6,7 +6,7 @@ var prince;
 var prevMS;
 
 function setup() {
-  createCanvas(400,400);
+	createCanvas(400,400);
 	bg=createGraphics(width,height);
 	blops_make();
 	prince=new Prince();
@@ -20,7 +20,7 @@ function setup() {
 }
 
 function draw() {
-  image(bg,0,0);
+	image(bg,0,0);
 	blops_control();
 	waves_control();
 	prince.render();
