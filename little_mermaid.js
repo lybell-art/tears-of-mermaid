@@ -1,25 +1,51 @@
+var sceneNo=10;
 var bg;
 var blops=[];
 var waves=[];
 var player;
 var prince;
 var prevMS;
+var fadeCount=-1;
 
 function setup() {
 	createCanvas(400,400);
 	bg=createGraphics(width,height);
-	blops_make();
+	sea_bg(bg);
 	prince=new Prince();
 	player=new Mermaid(prince);
 	for(var i=0;i<50;i++)
 	{
 		waves[i]=new Wave(prince);
 	}
-	sea_bg(bg);
 	prevMS=millis();
 }
 
 function draw() {
+	switch(sceneNo)
+	{
+		case 10:pregame(); break;
+		case 11:ingame(); break;
+		case 12:fade(true); break;
+		case 13:fade(false); break;
+		case 21:reunion(); break;
+		case 22:lapse(); break;
+	}
+}
+
+function pregame()
+{
+	player.preset();
+	prince.preset();
+	blops_make();
+	for(var i=0;i<50;i++)
+	{
+		waves[i]=new Wave(prince);
+	}
+	sceneNo=11;
+}
+
+function ingame()
+{
 	image(bg,0,0);
 	blops_control();
 	waves_control();
@@ -27,10 +53,48 @@ function draw() {
 	player.execute();
 	player.render();
 	player.renderPtc();
+	if(player.hp<=0) sceneNo=13;
+	else if(player.isMeetPrince()) sceneNo=12;
 	prevMS=millis();
 }
 
+function fade(isMeet)
+{
+	var col;
+	if(isMeet) col=color(255,15);
+	else col=color(6,50,99,15);
+	noStroke();
+	fill(col);
+	rect(0,0,width,height);
+	if(fadeCount>180)
+	{
+		fadeCount=-1;
+		sceneNo=20+(isMeet?1:2);
+	}
+	else fadeCount++;
+}
+
+function reunion()
+{
+	console.log("reunion");
+	sceneNo=10;
+}
+
+function lapse()
+{
+	console.log("lapse");
+	sceneNo=10;
+}
+
 function mousePressed()
+{
+	switch(sceneNo)
+	{
+		case 11:wave_make();
+	}
+}
+
+function wave_make()
 {
 	var i;
 	for(i=0;i<50;i++)
@@ -58,7 +122,7 @@ function blops_make()
 {
 	for(var i=0;i<12;i++)
 	{
-		blops[i]=new blop(i*1500);
+		blops[i]=new blop(millis()+i*1500);
 	}
 }
 
@@ -156,10 +220,18 @@ function Mermaid(Prince)
 {
 	this.hp=60000;
 	this.x=width*2/3;
-	this.y=height*2/3
+	this.y=height*2/3;
 	this.dir=0;
 	this.opponent=Prince;
 	this.particles=[];
+	this.preset=function()
+	{
+		this.hp=60000;
+		this.x=width*2/3;
+		this.y=height*2/3;
+		this.dir=0;
+		this.particles=[];
+	}
 	this.execute=function()
 	{
 		var pos=createVector(mouseX,mouseY);
@@ -225,6 +297,14 @@ function Mermaid(Prince)
 			if(this.particles[0].size<=0) this.particles.shift();
 		}
 	}
+	this.isMeetPrince=function()
+	{
+		var dist_=dist(this.x,this.y,width/2,height/2);
+		var M_r=min(width,height)/20*(this.hp/60000);
+		var P_r=min(width,height)/20
+		if(dist_<M_r+P_r) return true;
+		else return false;
+	}
 }
 
 function effectParticle()
@@ -254,6 +334,14 @@ function Wave(Prince)
 	this.r=0;
 	this.isRun=false;
 	this.opponent=Prince;
+	this.preset=function()
+	{
+		this.power=0;
+		this.x=0;
+		this.y=0;
+		this.r=0;
+		this.isRun=false;
+	}
 	this.create=function(X,Y)
 	{
 		this.x=X;
@@ -293,6 +381,12 @@ function Prince()
 	this.maxBR=min(width,height)/6
 	this.barrierRadius=this.maxBR;
 	this.barrierHealth=15300;
+	this.preset=function()
+	{
+		this.maxBR=min(width,height)/6
+		this.barrierRadius=this.maxBR;
+		this.barrierHealth=15300;
+	}
 	this.breakBarrier=function(damage)
 	{
 		this.barrierHealth-=damage;
