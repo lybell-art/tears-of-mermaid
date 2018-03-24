@@ -8,7 +8,7 @@ var prevMS;
 var fadeCount=-1;
 
 function setup() {
-	createCanvas(400,400);
+	createCanvas(windowWidth,windowHeight);
 	bg=createGraphics(width,height);
 	sea_bg(bg);
 	prince=new Prince();
@@ -29,6 +29,21 @@ function draw() {
 		case 13:fade(false); break;
 		case 21:reunion(); break;
 		case 22:lapse(); break;
+	}
+}
+
+function mousePressed()
+{
+	switch(sceneNo)
+	{
+		case 11:wave_make(); break;
+		case 21:
+		case 22:
+			if(is_buttonPress())
+			{
+				sceneNo=10;
+			}
+			break;
 	}
 }
 
@@ -61,12 +76,12 @@ function ingame()
 function fade(isMeet)
 {
 	var col;
-	if(isMeet) col=color(255,15);
-	else col=color(6,50,99,15);
+	if(isMeet) col=color(255,10);
+	else col=color(6,50,99,10);
 	noStroke();
 	fill(col);
 	rect(0,0,width,height);
-	if(fadeCount>180)
+	if(fadeCount>60)
 	{
 		fadeCount=-1;
 		sceneNo=20+(isMeet?1:2);
@@ -76,23 +91,19 @@ function fade(isMeet)
 
 function reunion()
 {
-	console.log("reunion");
-	sceneNo=10;
+	background(255);
+	love();
+	restart_Button();
 }
 
 function lapse()
 {
-	console.log("lapse");
-	sceneNo=10;
+	background("#063263");
+	tear();
+	restart_Button();
 }
 
-function mousePressed()
-{
-	switch(sceneNo)
-	{
-		case 11:wave_make();
-	}
-}
+//=========================sub function=======================//
 
 function wave_make()
 {
@@ -165,6 +176,80 @@ function getDir(c_X, c_Y, p_X, p_Y, ForB)
 	if(ForB==1) a=p5.Vector.sub(mousePos,PmousePos);	//front
 	else a=p5.Vector.sub(PmousePos,mousePos);	//back
 	return a.heading();
+}
+
+function love()
+{
+	var r=min(width,height)/45;
+	noFill();
+	stroke("#4fa8e4");
+	strokeWeight(3*min(width,height)/768);
+	push();
+	translate(width/2,height/3-r);
+	rotate(radians(-45));
+	ellipse(-r,-r,4*r,4*r);
+	ellipse(r,r,4*r,4*r);
+	rect(-3*r,-r,4*r,4*r);
+	pop();
+}
+
+function tear()
+{
+	var r=min(width,height)/18;
+	noFill();
+	stroke("#4fa8e4");
+	strokeWeight(3*min(width,height)/768);
+	push();
+	translate(width/2,height/3);
+	rotate(radians(-45));
+	ellipse(0,0,2*r,2*r);
+	rect(0,-r,r,r);
+	line(0,0,0,r);
+	line(0,0,-r,0);
+	pop();
+}
+
+function restart_Button()
+{
+	var c1=color(171,254,246);
+	var c2=color(12,104,215);
+	var r=min(width,height)/10;
+	var x=width/2;
+	var y=height*2/3;
+	var px, py;
+	var i;
+	noFill();
+	strokeWeight(2.5*min(width,height)/768);
+	for(i=0;i<360;i++)
+	{
+		px=x+r*cos(radians(i));
+		py=y+r*sin(radians(i));
+		stroke(lerpColor(c2,c1,(1-sin(radians(i)))/2));
+		point(px,py);
+	}
+	var std=min(width,height)/5;
+	r=std/3;
+	x=width/2-std*0.14;
+	y=height*2/3-r/2;
+	var ll=0;
+	noFill();
+	strokeWeight(1);
+	for(i=0;i<r;i++)
+	{
+		if(i<r/2) ll+=2;
+		else ll-=2;
+		stroke(lerpColor(c1, c2, i/r));
+		line(x,y+i,x+ll,y+i);
+	}
+}
+
+function is_buttonPress()
+{
+	var r=min(width,height)/10;
+	var x=width/2;
+	var y=height*2/3;
+	if(dist(mouseX,mouseY,x,y)<r) return true;
+	else return false;
 }
 
 //====================class=====================//
