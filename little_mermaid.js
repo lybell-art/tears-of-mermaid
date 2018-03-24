@@ -463,7 +463,7 @@ function Wave(Prince)
 
 function Prince()
 {
-	this.maxBR=min(width,height)/6
+	this.maxBR=min(width,height)/6;
 	this.barrierRadius=this.maxBR;
 	this.barrierHealth=15300;
 	this.preset=function()
